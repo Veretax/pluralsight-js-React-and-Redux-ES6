@@ -1,0 +1,137 @@
+Notes on ReactJs
+
+Ways to Create Components
+
+4 Ways
+
+    ES5 Create Class
+        var HelloWorld = React.createClass({
+            render: function () {
+                return (
+                    <h1> Hello World</h1>
+                );
+            }
+        });
+
+    ES6 Class
+    ES5 stateless funciton
+    ES6 Stateless function
+
+ES5 create Class autobound for you thus avoiding the JS quirky this keyword behavior
+  Ex:
+  //Works fine with ES5 createClass
+  <div onClick={this.handleClick}></div>
+
+ES6 does not autobind
+
+  You have to understand the this.
+  Ex:
+  //Requires Explicit bind with ES6 Class (Inline version)
+  <div onClick={this.handleClick.bind(this)}></div>
+
+  or
+
+  class Contacts extends React.Component {
+    constructor(props) {
+      super(props);
+      this.handleClick.bind(this)
+    }
+  }
+
+
+Unlike ES5:
+  PropTypes declared separately
+  Default props declared separately
+  Can be declared within the class (enable stage1 support in Babel)
+  Set initial state in constructor rather than in setInitialState function
+
+ES5 stateless function
+  var HelloWorld  function(props) {
+    return (
+      <h1>Hello World</h1>
+    );
+  };
+
+  Basically return is assumed to be the render function
+  props are passed in
+
+  if component doesn't need to manage state utilize component life cycle
+  methods or do optimization you can do a stateless functional component
+
+ES6 Stateless function
+  We will use ES6 const keyword when declaring our stateless functions.
+  In ES6 var keyword should be avoided, instead use let or const.
+  We will also typically use the arrow function instead of the function keyword
+  Ex:
+
+  const HelloWorld = (props) => {
+    return(
+      <h1>Hello World</h1>
+    );
+  };
+
+  9 Benefits of Stateless Functional Components
+
+    1. No class needed  (allows elimination of class keyword, use of extends keyword, and constructor, which is a nice win)
+    2. Avoid `this` keyword this improves understanding
+     Also eliminates need to call bind to get rid of this confusion
+    3. Enforced Best Practices - useful for dumb presentational components focused on UI so avoid using state in Presentation components
+        Instead state should be managed by higher level container components via flux/redux, etc.
+        They don't support state or life cycle methods.
+    4. High Signal-to-noise ratio  (less noise)
+    5. ENhanced code completion/intellisense data is now specified in a single function argument
+    6. Bloated components are obvious (code smell).  The argument list clearly declares component dependencies.
+    7. Easy to Understand
+    8. Easy to test because it is a pure function
+    9. Performance will be improved, since there is no state or lifecycle, so unnecessary checks/memory allocation will be eliminated.
+
+
+When should we use stateless functional components?
+  Whenever possible.
+  Class Component
+    Need local state
+    Need reference to underlying DOM
+    Lifecycle method hooks
+    Child functions (for performance)
+
+  Stateless Components
+    Everywhere else
+
+Other ways to create components.
+  Alternative approaches include:
+
+    Object.create
+    Mixins
+    Parasitic Components
+    StampIt
+
+    More info: http://bit.ly/react-define-component
+
+Container vs Presentation components
+
+  Container
+    Little to no Markup
+    Concerned with behavior, marshalling data, actions.
+    The backend of the frontend
+    Don't have to emite DOM, passing things down to their children
+    Typically stateful
+    Sometimes in separate folders from presentation components but others by feature
+    Pass data and actions down
+    Knows about redux
+    Often stateful
+
+
+  Presentation
+    Nearly all markup (don't have logic)
+    Receive data and actions via props
+    Doesn't know about Redux
+    Typically stateless/functional components
+    Most components will be presentation
+
+    Alternative Jargon
+
+    Container   vs    presentational
+    Smart             dumb
+    stateful          Stateless
+    Controller View   View
+
