@@ -1,13 +1,13 @@
 import AuthorApi from '../api/mockAuthorApi';
 import * as types from './actionTypes';
 
-export function loadAuthorsSuccess(courses) {
+export function loadAuthorsSuccess(authors) {
   return {
-    type: types.LOAD_AUTHORS_SUCCESS, courses
+    type: types.LOAD_AUTHORS_SUCCESS, authors
   };
 }
 
-export function loadCourses() {
+export function loadAuthors() {
   return function(dispatch) {
     return AuthorApi.getAllAuthors().then(authors => {
       dispatch(loadAuthorsSuccess(authors));
