@@ -26,5 +26,6 @@ describe('ManageCoursePage', () => {
     const saveButton = wrapper.find('input[type="submit"]');
     expect(saveButton.hasClass('btn-primary')).toBe(true);
     saveButton.simulate('click');
+    expect(wrapper.state().errors.title).toBe('Title must be at least 5 characters.');
   });
 });
