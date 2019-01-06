@@ -135,3 +135,733 @@ Container vs Presentation components
     stateful          Stateless
     Controller View   View
 
+Do I need Redux at all?
+
+Context:  No tool is perfect for every job so consider complexity on a spectrum.
+
+Simple -> complex
+No Setup -> Significant Setup
+
+VanillaJS
+jQuery
+React (think about it as small pure functions to help manage complexity)
+React + Redux
+
+When do I need Redux?
+
+Complex Data flows
+Inter-Component Communication
+Non-heirarchical data
+Many actions
+Same data used in multiple places
+
+Redux: 3 Principles
+
+  One Immutable Store
+  ACtions trigger changes
+  Reducers Update State
+
+Flux vs Redux
+
+  Data down
+  Actions Up
+
+Flux and REdux Similarities:
+  Unidirectional flows
+  Actions
+  Stores
+
+Redux: New Concepts
+
+  Reducers: Are functions that take current state and action and then return a new state (Pure functions)
+  Containers: Are react components, which contain the necessary logic for marshalling data and actions which they typically pass down to dumb components via props
+  (Also pure functions, receive data via props)
+  Immutability: Redux store is Immutable
+
+
+Flux
+
+  Action to Dispatcher to Store to React Back to ACtions
+
+Redux
+  Action to Store (which then utilizes Reducers) then to React to Action again
+
+
+Contrasting
+
+
+Flux:
+
+  Stores do more than one thing.
+  Stores contain state and change logic
+  Multiple Stores
+  Flat and disconnected stores
+  Singleton dispatcher connects actions to stores
+  React components subscribe to stores
+  state is mutated
+
+Redux:
+
+  Redux honors Single Responsibility Principles
+  Separating logic for handling state (reducers handle state changing logic)
+  Store and change logic are separate
+  One Store
+  Single store with hierarchical reducers (more reducers and you can nest them)
+  No dispatcher, single store passes actions down to reducers you define.  (pure functions)
+  Container components utilize connect (react-redux)
+  state is immutable (return an updated copy of state rather than change it)
+
+
+Redux flow
+
+  action =>   { type: RATE_COURSE, rating: 5 }
+    store =>
+      reducer =>
+        function appReducer(state = defaultState, action) {
+          switch(action.type) {
+            case RATE_COURSE:
+            //return new state
+          }
+        }
+    Store => React => notified via React-Redux
+
+Action Creators
+
+rateCourse(rating) {
+  return { type: RATE_COURSE, rating: rating }
+}
+
+(no functions or promises as values)
+
+Creating Redux store
+
+
+let store = createStore(reducer);
+
+Redux store can
+store.dispatch(action);
+store.subscribe(listener);
+store.getState();
+replaceReducer(nextReducer);
+
+Immutability
+
+  Funadmental concept in Redux
+  Immutability: To change state, return a new object.
+  you must return a new object that represents the applications new state
+
+  What is Mutable i JS?
+
+
+  Immutable alraedy!
+    Number
+    String,
+    Boolean,
+    Undefined,
+    Null
+
+  Mutable
+    Objects
+    Arrays
+    functions
+
+  Consider Mutable Example
+
+  Current State:
+
+    state = {
+      name: 'Cory House'
+      role: 'author'
+    }
+
+    Traditional App - Mutating State
+
+    state.role = 'admin'
+    return state;
+
+
+  Immutable Example:
+
+  Current State:
+    state = {
+      name: 'Cory House'
+      role: 'author'
+    }
+
+    Returning new object not mutating state!
+
+    return state = {
+      name: 'Cory House'
+      role: 'admin'
+    }
+
+Ways to copy objects in JS
+
+Signature:
+
+Object.assign(target, ...sources)
+
+Example:
+
+Object.assign({}, state, {role: 'admin' });
+
+(pass an empty object first always! otherwise you mutate state)
+
+Bbel can't transpile object.assign
+
+Flux          vs    React
+STate is mutated    State is immutable
+
+\
+Why Immutability?
+Clarity
+Performance
+Awesome Sauce
+
+
+Clarity:
+
+  Huh who changed that state?
+    (In the reducer, stupid!)
+
+Performance:
+  state = {
+    name: 'COry House'   (<- has this changed)
+    role: 'author'
+    city: 'Kansas City'
+    state: 'Kansas'
+    country: 'USA'
+    isFunny: 'Rarely'
+    smellsFUnny: 'Often'
+  }
+
+  If state was mutable we'd have to do an expensive check of EVERY single proprty
+
+  Instead redux can do a reference comparison if its not the same object, you know its changed.
+
+  if(prevStoreState !== storeState) ...
+
+  uses the shouldComponentUpdateMethod
+
+Awesome Sauce:
+  AMazing Debugging
+  Timetravel Debugging wow!
+
+  See how state is changing over time.
+
+
+Approaches for handling Immutability
+
+  ES6:
+    Object.assign
+    Spread operator
+
+  ES5:
+    Lodash merge
+    Lodash extends
+    Object-assign package
+
+  Libraries:
+    react-addons-updated
+    immutable.JS
+
+  JS primitives are already immutable
+
+  JS doesn't have immutable datastructures built in
+
+How do I enforce immutability?
+
+  Trust your team (educate and trust)
+  State mutation introduces a bug
+
+  Safety net:
+    redux-immutable-state-invariant
+    Warn us if we mutate state
+
+    (only run this in dev as its a performance hit)
+
+    Immutable.js creates immutable datastructures but can be useful Everywhere
+
+Reducers
+
+  What is a reducer?
+
+    Dispatch an action
+
+    function myReducer(state, action) {
+      // Return new state based on action passed
+    }
+
+
+    think of it like
+
+    (state, action) => state
+
+
+Ex:
+
+  function myReducer(state, action) {
+    switch(action.type) {
+      case 'INCREMENT_COUNTER':
+        state.counter++;  (uh oh can't do this!)
+        return state;
+    }
+  }
+
+  function myReducer(state, action) {
+    switch(action.type) {
+      case 'INCREMENT_COUNTER':
+        return (Object.assign(
+          {},
+          state,
+          {counter: state.counter +1}
+        ));
+      default:
+        return state;
+    }
+  }
+
+  Pur function always return the same value for a given input
+
+  Forbidden in Reducers:
+    Mutate ARguments
+    Performe Side effects
+      API calls
+      Routing transitions
+    Call non-pure functions
+      (so no date.now or math.random, time, )
+
+1 Store. Multiple Reducers.
+
+  All Reducers Are Called on Each Dispatch
+    Switch statement looks at action type to determine if it has anything to do
+  All reducers should return untouched state as default if no switch case match the action type passed
+
+Redux FAQ:
+  Write independent small reducer functions that are each responsibile for
+  updates to a spcific slice of state. We call this pattern "Reducer
+  Composition". A given action could be handled by all, some, or none of
+  them."
+
+Actions reepresent user intent
+  Must have a type
+Store
+  dispatch,subscribe getState
+Immutability
+  Just return a new copy
+Reducers
+  must be pure
+  multiple per app
+  Slice of state
+
+
+How do we connect our components to all this Redux Goodness.
+
+
+Connecting React to Redux
+
+  Plan:
+
+    Review Container vs Presentation Components
+    React-Redux library
+      Provider
+      Connecting
+    A Chat with Redux
+
+
+2 Component Types
+  Container                   presentational
+  Smart                       dumb
+  Focus on how things Work    Focus on how things look
+    Handle data and state
+  Aware of Redux              Unaware of Redux
+  Subscribe to Redux State    Read data from props
+  Dispatch Redux actions      Invoke callbacks on props
+  Generated by react-redux    Written by handle
+
+Action -> Store<-> Reducers
+            -> React
+
+react-redux handles store/react interaction
+
+React-Redux
+
+Provider                        Connect
+attaches app to store           Creates Container components
+
+React-Redux Provider
+
+
+  <Provider store={this.props.stor}>
+    <App/>
+  </Provider>
+
+
+  React's context:
+  Useful for library authors
+  Dangerous for you
+
+
+  Connect Functional
+
+  Wraps our component so its conncted to the Redux store.
+
+  export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(AuthorPage);
+
+  WHat parts of a store we want atatched as props, and what actions we
+  want exposed.  compared to flux:
+
+
+  ComponentWillMount() {
+    AuthorStore.addChangeListener(this.onChange);
+  }
+
+  Then you have to remove it in ComponentWillUnMount and make the onChange
+  method to do the change.
+
+
+  Redux:
+
+  function mapStateToProps(state, ownProps) {
+    return {appState: state.authorReducer };
+  }
+
+  export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(AuthorPage);
+
+Benefits:
+1. No manual unsubscribe
+2. No lifecycle methods required to subscribe to the store.
+3. Declare what subset of state you want
+4. Enhanced Performance for free
+
+aRGUMENTS TO Pass
+
+React-Redux Connect
+
+connect(mapStateToProps, mapDispatchToProps)
+
+mapStateToProps - what state should I expose as props
+  - is  logical place fo filtering
+
+function mapStateToProps(state) {
+  return {
+    appState: state
+  };
+}
+
+mapDispatchToProps - specify what actions to expose as Props
+
+Reselect - Library
+
+Memoize for performance
+
+(1 important thing to note every time component is updated mapStateToProps
+function is called, if its something expensive you may want a library like
+Reselct for Memoize)
+
+connect(mapStateToProps, mapDispatchToProps)
+
+mapDispatchToProps - specify what actions to expose as Props
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators(actions, dispatch)
+  };
+}
+
+
+3 Ways to Handle mapDispatchToProps in Redux Container Components
+
+
+this.props.dispatch(loadCourses());   Ignore it.  Use dispatch
+(can call dispatch manually on the COntainer and pass it an action creator)
+
+function mapDispatchToProps(dispatch) {
+  return {
+    loadCourses: () => {
+      dispatch(loadCourses());
+    }
+  }
+
+}
+(Manually Wap your dispatchcalls within the mapDispatchToProps function.
+This keeps the call in the actual component shorter at the cost of more
+code here.)
+
+Or use bindActionCreators
+
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators(actions, dispatch)
+  }
+}
+
+(decision about how you want to expose actions to components)
+
+
+Option 1: Use Dispatch Directly
+
+// In component
+this.props.dispatch(loadCourses())
+
+// (Calling connect on component automatically adds a dispatch prop and
+can be used to call the action creators as here, but there are downsides)
+1. More BoilerPlate (explicitly passing to dispatch
+2. Redux concerns in child components)
+
+Option 2: Wrap Manually
+
+function mapDispatchToProps(dispatch) {
+  return {
+    loadCourses: () => {
+      dispatch(loadCourses());
+    },
+    createCourse: (course) => {
+      dispatch(createCourse(course));
+    },
+    updateCourse: (course) => {
+      dispatch(updateCourse(course));
+    }
+
+  }
+}
+
+/Then call looks like
+// In Component
+this.props.loadCourses();
+
+
+Option 3: bindActionCreators
+
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators(actions, dispatch)
+  }
+}
+
+the prop that is exposed here is called actions.
+
+// this one wraps action creators in dispatch call for you
+
+advantage of Opt 2 and 3.. Child components do not have to know about
+Redux
+
+Container structure Review
+
+  Import section
+
+  Class Definition
+  Constructor initialize state and call bind functions to this context
+    best place to do so
+  child functions
+  render functions
+  PropTypes Validation
+  Redux Connect and related functions
+  MapStateToProps/mapDispatchToProps
+
+
+Merits of Mock applications
+
+Why? For convenience (also better for testing)
+
+Independence
+
+Backup plan (if API is down)
+
+Ultra-fast
+
+Test slowness, you can get a feel for how it performs when API calls are really slow, by using set timeout within API.
+
+Aids testing
+
+Point to the real API later
+
+Or code a trigger via setting
+
+We'll create a mock API in a moment.
+
+
+
+Async
+
+
+Flux                  Redux
+Handled in action     ?
+
+
+Most popular for handling async in Redux
+
+redux-thunk - returns functions from action creaters
+redux-promise - Flux standard actions and promises
+redux-saga - Uses ES6 generators and rich domain-specific language
+
+Generators are functions that can be paused and resumed later
+(multiple yield statements)
+
+Thunks            Sagas
+functions         generators
+Clunky to Test    Easy to test (can assert on effects)
+(have to mock everything and harder to observe)
+
+Easy to Learn     Hard to Learn
+
+
+Thunks Example
+
+A thunk is a CS term... A thunk is a function that wraps an expression in order to delay its evaluation.
+
+
+
+export function deleteAuthor(authorId) {
+  return dispatch => {
+    return AuthorApi.deleteAuthor(authorId).then(() => {
+      dispatch(deletedAuthor(authorId));
+    }).catch(handleError);
+  };
+}
+
+
+
+Testing Technologies
+  Frameworks
+  Assertion Libraries
+  Helper Libraries
+
+  React Presentation Components
+
+Testing Frameworks
+  Mocha is the most popular
+  Jasmine
+  Jest (From Facebook)
+  Tape (Leanest/simplest)
+  AVA (New kid on the block)
+
+  Mocha                     AVA
+  Serial                    Concurrent
+  No assertions built in    Assertions built in
+  Use globals               no globals
+  no built-in ES6 support   Built-in ES6 support
+  Runs all tests on save    Runs only impacted tests
+  Long Stack trace upon error
+                            Short Specific Error with marker
+  Provern,mature, with huge ecosystem
+                            New
+
+  Most popular AssertionLibrary Is Chai   He used expect because its symple and terse api.
+
+Chai            expect
+to.equal        toBe
+to.deep.equal   toEqual
+to.exist        toExist
+to.not.exist    toNotExist
+to.be.above     ToBeGreaterThan
+No spcific      Spy built in
+
+Helper Library
+React Test utils
+  React testing library
+  Built by Facebook
+  Verbose API
+
+  Two Rendering Options
+
+  shallowRender             renderIntoDocument
+  Render single component   Render component and children
+  No Dom required           DOM Required
+  Fast and Simple           Supports simulating interactions
+
+  DOM interactions
+  findRenderDOMComponentWithTag
+  scryRenderedDOMComponentsWithTag
+  Simulate
+    Clicks
+    Keypresses
+    Form Submissions and scrolling
+    etc.
+
+  muh more http://facebook.github.io/react/docs/test-utils.html
+
+  Enzyme  just find lol.
+
+  Enzyme is an abstraction
+  behind the scenes
+
+    It calls React Test utils
+
+  JSDOM (In-memory DOM)
+  Cheerio (Fast jQuery Style selectors)
+
+  Where To Test
+  Browser
+    Karma is a test runner
+
+    Headless Browser like PhantomJS
+    In-Memory DOM
+
+
+
+Rendering Options
+
+  Shallow Render              Render into renderIntoDocument
+  Fast                        slower
+  Test in Isolation           Test Set of Components
+  No Refs or interactions yet Test refs and interactions
+Recommended for the Future
+
+2 Goals for testing behavior
+
+1. Test Markup
+2. Test behavior
+
+
+Tricky thing about testing Container Components
+
+They're all wrapped in a call to connect! What do I do?
+
+1. Wrap with <Provider> (<Provider store={store}>MyComponent</Provider>)
+2. Add named export for unconnected component.
+
+
+redux-test-recorder hrms
+
+
+
+Testing thunks:
+
+
+Mock 2 things
+
+- store       redux-mock-store
+- HTTP calls  nock
+
+Tests of store is really an integration test, making sure action/store/reducers work together correctly.
+
+
+
+Deployment notes:
+
+
+/dist (production build)
+  index.html
+  bundle.js
+  styles.css
+
+/src (source file)
+
+
+
+Production Build Process:
+
+  Lint and runs tests
+  Bundle and minify js and css
+  Generate JS and CSS scourcemaps
+  Execlude dev-specific concerns
+  build react in production mode
+  open prod build in browser
+
+
