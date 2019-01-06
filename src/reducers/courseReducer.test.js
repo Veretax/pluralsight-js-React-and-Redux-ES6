@@ -23,13 +23,13 @@ describe('Course Reducer', () => {
 
   it('should update a course when passed UPDATE', ()=> {
     const initialState = [
-      {title: 'A'},
-      {title: 'B'},
-      {title: 'C'}
+      {id: 'A', title: 'A'},
+      {id: 'B', title: 'B'},
+      {id: 'C', title: 'C'}
     ];
 
     const course = {id: 'B', title: 'New Title'};
-    const action = actions.createCourseSuccess(course);
+    const action = actions.updateCourseSuccess(course);
 
     const newState = courseReducer(initialState, action);
     const updatedCourse = newState.find(a => a.id == course.id);
