@@ -1,4 +1,5 @@
 import 'babel-polyfill';
+/*eslint-disable import/deafult */
 import React from 'react';
 import { render } from 'react-dom';
 import configureStore from './store/configureStore';
